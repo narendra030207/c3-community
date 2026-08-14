@@ -3,13 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'motion/react';
-import { Menu, X, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { cn } from '@/lib/utils';
-// Note: next-auth useSession would be used here in real app
-// import { useSession } from 'next-auth/react';
 
 const NAV_ITEMS = [
   { label: 'Home', href: '/' },
@@ -24,9 +22,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  
-  // Mock session for UI purposes
-  const session = { data: null }; // or { data: { user: { name: 'Admin', role: 'admin' } } }
+
+  const session = { data: null };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -34,13 +31,18 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   return (
     <>
       <nav
         className={cn(
-          'fixed top-0 inset-x-0 z-40 transition-all duration-300 border-b',
-          scrolled
-            ? 'bg-navy-950/80 backdrop-blur-md border-white/10 py-3 shadow-lg'
+          'fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b',
+          scrolled || mobileMenuOpen
+            ? 'bg-navy-950/95 backdrop-blur-md border-white/10 py-3 shadow-lg'
             : 'bg-transparent border-transparent py-5'
         )}
       >
@@ -118,17 +120,82 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle Button */}
           <button
-            className="md:hidden text-gray-300 hover:text-white p-2"
-            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden text-gray-300 hover:text-white p-2 focus:outline-none"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label="Toggle Navigation Menu"
           >
-            <Menu className="w-6 h-6" />
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile Menu (would normally be imported component, inlining logic here for simplicity if needed, but we have MobileMenu.tsx) */}
+      {/* Mobile Menu Overlay / Drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-x-0 top-[60px] z-40 bg-navy-950/95 backdrop-blur-xl border-b border-white/10 p-6 md:hidden shadow-2xl"
+          >
+            <div className="flex flex-col space-y-4">
+              {NAV_ITEMS.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      'text-base font-medium transition-colors py-2 px-3 rounded-lg',
+                      isActive
+                        ? 'bg-white/10 text-white'
+                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+
+              <div className="pt-4 mt-2 border-t border-white/10 flex flex-col space-y-3">
+                {session?.data ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-medium text-gray-300 hover:text-white"
+                    >
+                      Dashboard
+                    </Link>
+                    <button className="text-left text-sm text-red-400 hover:text-red-300">
+                      Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-center py-2 text-sm font-medium text-gray-300 hover:text-white rounded-lg bg-white/5 border border-white/10"
+                    >
+                      Log in
+                    </Link>
+                    <Button variant="primary" size="sm" className="w-full" asChild>
+                      <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                        Join Now
+                      </Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

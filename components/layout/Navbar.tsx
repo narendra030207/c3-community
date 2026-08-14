@@ -122,9 +122,14 @@ export function Navbar() {
 
           {/* Mobile Menu Toggle Button */}
           <button
-            className="md:hidden text-gray-300 hover:text-white p-2 focus:outline-none"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            type="button"
+            className="md:hidden text-gray-300 active:text-white p-2 focus:outline-none"
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileMenuOpen(!mobileMenuOpen);
+            }}
             aria-label="Toggle Navigation Menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -139,7 +144,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-[60px] z-40 bg-navy-950/95 backdrop-blur-xl border-b border-white/10 p-6 md:hidden shadow-2xl"
+            className="fixed inset-x-0 top-[60px] z-[100] bg-navy-950/95 backdrop-blur-xl border-b border-white/10 p-6 md:hidden shadow-2xl"
           >
             <div className="flex flex-col space-y-4">
               {NAV_ITEMS.map((item) => {

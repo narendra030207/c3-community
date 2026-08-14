@@ -1,0 +1,473 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  FACULTY
+  ORGANIZER
+  MODERATOR
+  PARTICIPANT
+}
+
+enum EventType {
+  CODING
+  HACKATHON
+  WORKSHOP
+  SEMINAR
+  QUIZ
+  COMPETITION
+  OTHER
+}
+
+enum EventStatus {
+  UPCOMING
+  LIVE
+  COMPLETED
+  REGISTRATION_CLOSED
+}
+
+enum CompetitionStatus {
+  UPCOMING
+  ACTIVE
+  JUDGING
+  COMPLETED
+}
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  PARTIAL
+}
+
+enum NoticePriority {
+  NORMAL
+  IMPORTANT
+  URGENT
+}
+
+enum NoticeCategory {
+  GENERAL
+  EVENT
+  COMPETITION
+  RESULT
+  ACHIEVEMENT
+  MAINTENANCE
+}
+
+enum TeamCategory {
+  FACULTY_MENTOR
+  CORE_TEAM
+  COORDINATOR
+  VOLUNTEER
+  ALUMNI
+}
+
+enum GalleryCategory {
+  EVENT
+  WORKSHOP
+  HACKATHON
+  COMPETITION
+  TEAM
+  AWARD
+  OTHER
+}
+
+enum ContactStatus {
+  UNREAD
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+enum AchievementType {
+  CODING_CHAMPION
+  HACKATHON_WINNER
+  TOP_PERFORMER
+  PROBLEM_SOLVER
+  WORKSHOP_CONTRIBUTOR
+  COMMUNITY_LEADER
+  EVENT_ORGANIZER
+  RISING_STAR
+  FIRST_EVENT
+  FIRST_WIN
+  STREAK_7
+  STREAK_30
+  CENTURY_SCORE
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
+  password       String
+  role           UserRole  @default(PARTICIPANT)
+  avatar         String?
+  emailVerified  DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  profile              Profile?
+  eventRegistrations   EventRegistration[]
+  competitionParticipants CompetitionParticipant[]
+  scores               Score[]
+  leaderboardEntries   LeaderboardEntry[]
+  certificates         Certificate[]
+  achievements         UserAchievement[]
+  notifications        Notification[]
+  prizesWon            Prize[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Profile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  bio         String?
+  branch      String?
+  batch       String?
+  rollNumber  String?
+  phone       String?
+  github      String?
+  linkedin    String?
+  twitter     String?
+  website     String?
+  skills      String[] @default([])
+  totalScore  Int     @default(0)
+  currentRank Int?
+  bestRank    Int?
+  xp          Int     @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([branch])
+  @@index([batch])
+  @@index([totalScore])
+}
+
+model Event {
+  id                 String      @id @default(cuid())
+  title              String
+  slug               String      @unique
+  description        String
+  banner             String?
+  date               DateTime
+  endDate            DateTime?
+  time               String?
+  venue              String?
+  eventType          EventType
+  status             EventStatus @default(UPCOMING)
+  registrationDeadline DateTime?
+  organizer          String?
+  rules              String?
+  eligibility        String?
+  prizeInfo          String?
+  maxParticipants    Int?
+  isPublished        Boolean     @default(true)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  registrations EventRegistration[]
+  certificates  Certificate[]
+  results       Result[]
+
+  @@index([status])
+  @@index([eventType])
+  @@index([date])
+  @@index([slug])
+}
+
+model EventRegistration {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([eventId])
+}
+
+model Competition {
+  id              String            @id @default(cuid())
+  title           String
+  slug            String            @unique
+  description     String
+  banner          String?
+  startDate       DateTime
+  endDate         DateTime
+  status          CompetitionStatus @default(UPCOMING)
+  rules           String?
+  problemStatement String?
+  maxParticipants Int?
+  isPublished     Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  participants CompetitionParticipant[]
+  submissions  Submission[]
+  scores       Score[]
+  prizes       Prize[]
+  results      Result[]
+  certificates Certificate[]
+
+  @@index([status])
+  @@index([startDate])
+  @@index([slug])
+}
+
+model CompetitionParticipant {
+  id            String   @id @default(cuid())
+  userId        String
+  competitionId String
+  registeredAt  DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@unique([userId, competitionId])
+  @@index([competitionId])
+}
+
+model Submission {
+  id            String           @id @default(cuid())
+  participantId String
+  competitionId String
+  content       String?
+  fileUrl       String?
+  score         Float?
+  status        SubmissionStatus @default(PENDING)
+  feedback      String?
+  submittedAt   DateTime         @default(now())
+  evaluatedAt   DateTime?
+
+  participant CompetitionParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  competition Competition            @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  @@index([competitionId])
+  @@index([status])
+}
+
+model Score {
+  id            String   @id @default(cuid())
+  userId        String
+  competitionId String?
+  eventId       String?
+  points        Int      @default(0)
+  reason        String?
+  awardedAt     DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([competitionId])
+  @@index([points])
+}
+
+model LeaderboardEntry {
+  id              String   @id @default(cuid())
+  userId          String
+  totalScore      Int      @default(0)
+  competitionScore Int     @default(0)
+  eventCount      Int      @default(0)
+  winCount        Int      @default(0)
+  rank            Int?
+  previousRank    Int?
+  period          String   @default("global") // global, monthly, weekly
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period])
+  @@index([rank])
+  @@index([totalScore])
+  @@index([period])
+}
+
+model Prize {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  position      Int      // 1st, 2nd, 3rd, etc.
+  prizeType     String   // cash, trophy, medal, certificate, goodies, recognition
+  value         String?  // e.g. "₹5000", "Gold Medal"
+  competitionId String?
+  winnerId      String?
+  awardedAt     DateTime?
+  createdAt     DateTime @default(now())
+
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  winner      User?        @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+
+  @@index([competitionId])
+  @@index([position])
+}
+
+model Certificate {
+  id            String   @id @default(cuid())
+  certificateId String   @unique @default(cuid()) // Public verification ID
+  userId        String
+  eventId       String?
+  competitionId String?
+  title         String
+  achievement   String
+  issueDate     DateTime @default(now())
+  issuedBy      String   @default("C3 Community")
+  isVerified    Boolean  @default(true)
+  templateData  String?  // JSON for certificate template customization
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event       Event?       @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([certificateId])
+}
+
+model Achievement {
+  id          String          @id @default(cuid())
+  name        String          @unique
+  type        AchievementType
+  description String
+  icon        String?
+  xpReward    Int             @default(0)
+  requirement String?         // JSON describing unlock criteria
+  createdAt   DateTime        @default(now())
+
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+  progress      Int      @default(100) // percentage
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model Notice {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  category    NoticeCategory @default(GENERAL)
+  priority    NoticePriority @default(NORMAL)
+  attachment  String?
+  externalLink String?
+  isPublished Boolean        @default(true)
+  publishedAt DateTime       @default(now())
+  expiresAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([priority])
+  @@index([category])
+  @@index([publishedAt])
+}
+
+model Result {
+  id            String   @id @default(cuid())
+  competitionId String?
+  eventId       String?
+  userId        String?
+  participantName String?
+  rollNumber    String?
+  rank          Int?
+  score         Float?
+  remarks       String?
+  publishedAt   DateTime @default(now())
+
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  event       Event?       @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([competitionId])
+  @@index([eventId])
+  @@index([rollNumber])
+}
+
+model GalleryItem {
+  id          String          @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String
+  category    GalleryCategory
+  eventName   String?
+  date        DateTime?
+  isPublished Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+
+  @@index([category])
+}
+
+model TeamMember {
+  id         String       @id @default(cuid())
+  name       String
+  position   String
+  category   TeamCategory
+  department String?
+  bio        String?
+  photo      String?
+  skills     String[]     @default([])
+  github     String?
+  linkedin   String?
+  twitter    String?
+  email      String?
+  order      Int          @default(0)
+  isActive   Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+
+  @@index([category])
+  @@index([order])
+}
+
+model ContactMessage {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    ContactStatus @default(UNREAD)
+  reply     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}

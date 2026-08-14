@@ -1,0 +1,67 @@
+{
+  "name": "c3-community",
+  "version": "1.0.0",
+  "private": true,
+  "description": "C3 Community - Premium 3D Professional Technology Community Platform",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@react-three/fiber": "^9.1.2",
+    "@react-three/drei": "^10.0.0",
+    "three": "^0.172.0",
+    "motion": "^12.15.0",
+    "@prisma/client": "^6.8.0",
+    "next-auth": "^5.0.0-beta.25",
+    "@auth/prisma-adapter": "^2.9.0",
+    "bcryptjs": "^2.4.3",
+    "zod": "^3.25.0",
+    "recharts": "^2.15.0",
+    "lucide-react": "^0.511.0",
+    "jspdf": "^2.5.2",
+    "qrcode.react": "^4.2.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.0",
+    "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/three": "^0.172.0",
+    "prisma": "^6.8.0",
+    "tsx": "^4.19.0",
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "postcss": "^8.5.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.3.3",
+    "@eslint/eslintrc": "^3.0.0"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "prisma@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.28.1": true,
+    "unrs-resolver@1.12.2": true,
+    "sharp@0.34.5": true,
+    "core-js@3.50.0": true
+  }
+}

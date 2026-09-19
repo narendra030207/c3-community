@@ -14,6 +14,8 @@ enum Route {
     Resources {},
     #[route("/about")]
     About {},
+    #[route("/auth")]
+    Auth {},
 }
 
 const MAIN_CSS: Asset = asset!("/assets/main.css");
@@ -64,25 +66,83 @@ fn App() -> Element {
 
 #[component]
 fn Navbar() -> Element {
+    let mut is_mobile_menu_open = use_signal(|| false);
+
+    use_effect(move || {
+        let is_open = is_mobile_menu_open();
+        let _ = document::eval(&format!(
+            "document.body.style.overflow = '{}';",
+            if is_open { "hidden" } else { "" }
+        ));
+    });
+
     rsx! {
-        nav { class: "bg-[var(--bg-base)] text-[var(--text-main)] p-4 border-b border-[var(--border-color)] sticky top-0 z-50 transition-colors duration-300",
+        nav { class: "bg-[var(--bg-base)] text-[var(--text-main)] p-4 sticky top-0 z-50 transition-colors duration-300 w-full overflow-x-hidden",
             div { class: "max-w-7xl mx-auto flex justify-between items-center",
-                div { class: "flex items-center space-x-2",
-                    Link { to: Route::Home {}, class: "text-2xl font-bold tracking-tight text-[var(--text-main)] cursor-pointer rounded-xl px-2 py-1", "Creative Coding Community" }
+                div { class: "flex items-center space-x-2 shrink-0 min-w-0",
+                    Link { to: Route::Home {}, class: "text-xl md:text-2xl font-bold tracking-tight text-[var(--text-main)] cursor-pointer rounded-xl px-2 py-1 truncate", 
+                        span { class: "hidden sm:inline", "Creative Coding Community" }
+                        span { class: "sm:hidden", "C3 Community" }
+                    }
                 }
-                div { class: "hidden md:flex space-x-6 text-sm font-medium text-[var(--text-muted)]",
+                div { class: "hidden lg:flex space-x-6 text-sm font-medium text-[var(--text-muted)] shrink-0",
                     Link { to: Route::Home {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "Home" }
                     Link { to: Route::Team {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "Team" }
                     Link { to: Route::Events {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "Events" }
                     Link { to: Route::Resources {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "Resources" }
                     Link { to: Route::About {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "About" }
                 }
-                div { class: "flex space-x-4",
-                    button { class: "px-5 py-2.5 rounded-full text-[var(--md-sys-color-primary)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors text-sm font-medium", "Log in" }
-                    button { class: "px-5 py-2.5 bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] rounded-full transition-colors text-sm font-medium cursor-pointer shadow-sm", "Join Now" }
+                div { class: "flex items-center space-x-1 sm:space-x-2 shrink-0",
+                    Link { to: Route::Auth {}, class: "p-2 flex items-center justify-center rounded-full text-[var(--md-sys-color-primary)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
+                        svg { class: "w-6 h-6", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", xmlns: "http://www.w3.org/2000/svg",
+                            circle { cx: "12", cy: "8", r: "5" }
+                            path { d: "M20 21a8 8 0 0 0-16 0" }
+                        }
+                    }
+                    button {
+                        class: "lg:hidden p-2 flex items-center justify-center rounded-full text-[var(--md-sys-color-primary)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
+                        onclick: move |_| is_mobile_menu_open.set(true),
+                        svg { class: "w-6 h-6", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", xmlns: "http://www.w3.org/2000/svg",
+                            path { d: "M3 12h18M3 6h18M3 18h18" }
+                        }
+                    }
                 }
             }
         }
+        
+        if is_mobile_menu_open() {
+            // Backdrop
+            div {
+                class: "fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm animate-fade-in-drawer cursor-pointer",
+                onclick: move |_| is_mobile_menu_open.set(false),
+            }
+            // Drawer
+            div {
+                class: "fixed inset-y-0 left-0 z-[101] w-64 sm:w-80 bg-[var(--md-sys-color-surface-container)] shadow-2xl flex flex-col animate-slide-in-left border-r border-[var(--md-sys-color-outline-variant)]",
+                
+                // Drawer Header
+                div { class: "p-6 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between",
+                    div { class: "font-bold text-xl text-[var(--text-main)] tracking-tight", "C3 Community" }
+                    button {
+                        class: "p-2 text-[var(--text-muted)] cursor-pointer rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] transition-colors",
+                        onclick: move |_| is_mobile_menu_open.set(false),
+                        svg { class: "w-5 h-5", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", xmlns: "http://www.w3.org/2000/svg",
+                            path { d: "M18 6L6 18M6 6l12 12" }
+                        }
+                    }
+                }
+                
+                // Drawer Links
+                div { class: "flex flex-col py-4 px-3 space-y-1 text-[var(--text-main)] font-medium",
+                    Link { to: Route::Home {}, onclick: move |_| is_mobile_menu_open.set(false), class: "px-4 py-3 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors", "Home" }
+                    Link { to: Route::Team {}, onclick: move |_| is_mobile_menu_open.set(false), class: "px-4 py-3 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors", "Team" }
+                    Link { to: Route::Events {}, onclick: move |_| is_mobile_menu_open.set(false), class: "px-4 py-3 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors", "Events" }
+                    Link { to: Route::Resources {}, onclick: move |_| is_mobile_menu_open.set(false), class: "px-4 py-3 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors", "Resources" }
+                    Link { to: Route::About {}, onclick: move |_| is_mobile_menu_open.set(false), class: "px-4 py-3 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors", "About" }
+                }
+            }
+        }
+        
         Outlet::<Route> {}
         Footer {}
     }
@@ -91,7 +151,7 @@ fn Navbar() -> Element {
 #[component]
 fn Home() -> Element {
     rsx! {
-        div { class: "bg-[var(--bg-base)] text-[var(--text-main)] min-h-screen transition-colors duration-300",
+        div { class: "bg-[var(--bg-base)] text-[var(--text-main)] min-h-screen transition-colors duration-300 animate-page-transition",
             HeroSection {}
             StatsSection {}
             FacultyMentorsSection {}
@@ -106,16 +166,16 @@ fn Home() -> Element {
 #[component]
 fn HeroSection() -> Element {
     rsx! {
-        div { class: "relative max-w-7xl mx-auto px-4 pt-32 pb-24 overflow-hidden",
+        div { class: "relative w-full px-0 pt-32 pb-24 overflow-hidden bg-[var(--md-sys-color-surface-container)] rounded-b-[2.5rem] md:rounded-b-[4rem] shadow-sm mb-12",
             div { class: "absolute top-10 right-0 w-[50vw] h-[50vw] max-w-[800px] max-h-[800px] bg-[var(--accent)] opacity-20 blur-[150px] rounded-full pointer-events-none translate-x-1/3" }
             div { class: "absolute bottom-0 left-0 w-[30vw] h-[30vw] max-w-[500px] max-h-[500px] bg-[var(--text-main)] opacity-10 blur-[100px] rounded-full pointer-events-none -translate-x-1/2" }
 
-            div { class: "relative z-10 flex flex-col md:flex-row items-center justify-between gap-12",
+            div { class: "relative z-10 flex flex-col md:flex-row items-center justify-between gap-12 px-6 md:px-12 max-w-7xl mx-auto",
                 div { class: "md:w-2/3",
                     div { class: "inline-block mb-6 px-4 py-2 rounded-full  glass-panel animate-fade-in-up delay-1 text-[var(--accent)] text-sm font-bold tracking-widest uppercase shadow-sm",
                         "✨ Welcome to C3"
                     }
-                    h1 { class: "text-6xl md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9]",
+                    h1 { class: "text-[11vw] sm:text-[10vw] md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9] w-full break-words",
                         "CODE." br {} "CREATE." br {} "COLLABORATE."
                     }
                     p { class: "text-xl md:text-2xl font-medium text-[var(--text-muted)] max-w-2xl mb-12 leading-relaxed",
@@ -423,7 +483,7 @@ fn Team() -> Element {
 fn TeamSection(title: String, icon: String, count: String, children: Element) -> Element {
     rsx! {
         div { class: "mb-16",
-            div { class: "flex items-center justify-between border-b border-[var(--border-color)] pb-4 mb-8",
+            div { class: "flex items-center justify-between pb-4 mb-8",
                 h2 { class: "text-2xl font-bold text-[var(--text-main)] flex items-center gap-3",
                     span { "{icon}" }
                     "{title}"
@@ -599,6 +659,168 @@ fn FooterColumn(title: String, links: Vec<String>) -> Element {
                 for link in links {
                     li {
                         a { href: "#", class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "{link}" }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+#[derive(Clone, Copy, PartialEq)]
+enum AuthView {
+    EmailInput,
+    VerifyOtp,
+}
+
+#[component]
+fn Auth() -> Element {
+    let nav = use_navigator();
+    let mut auth_view = use_signal(|| AuthView::EmailInput);
+    let mut email = use_signal(String::new);
+    let mut otp = use_signal(String::new);
+    let mut is_loading = use_signal(|| false);
+
+    rsx! {
+        div { class: "min-h-[80vh] flex flex-col items-center justify-center px-4 animate-page-transition",
+            div { class: "w-full max-w-md bg-[var(--md-sys-color-surface-container)] backdrop-blur-md rounded-[2rem] p-8 shadow-sm flex flex-col items-center relative overflow-hidden border border-[var(--md-sys-color-outline-variant)]",
+                
+                if *is_loading.read() {
+                    div { class: "absolute inset-0 bg-[var(--md-sys-color-surface-container)]/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center",
+                        div { class: "w-10 h-10 border-4 border-[var(--md-sys-color-primary)] border-t-transparent rounded-full animate-spin mb-4" }
+                        span { class: "text-sm font-bold tracking-widest text-[var(--text-main)] uppercase", "Processing..." }
+                    }
+                }
+
+                match auth_view() {
+                    AuthView::EmailInput => rsx! {
+                        div { class: "w-16 h-16 bg-[var(--bg-base)] rounded-2xl flex items-center justify-center text-[var(--md-sys-color-primary)] mb-6 shadow-inner",
+                            svg {
+                                class: "w-8 h-8",
+                                fill: "none",
+                                stroke: "currentColor",
+                                "stroke-width": "2",
+                                "stroke-linecap": "round",
+                                "stroke-linejoin": "round",
+                                "viewBox": "0 0 24 24",
+                                path { d: "M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" }
+                            }
+                        }
+                        h2 { class: "text-xl font-bold tracking-widest uppercase text-center mb-1 text-[var(--text-main)]", "Secure Access" }
+                        p { class: "text-[11px] md:text-xs opacity-70 tracking-wider text-center mb-8 text-[var(--text-muted)]",
+                            "Enter your email to securely access your account."
+                        }
+
+                        form {
+                            class: "w-full flex flex-col items-center",
+                            onsubmit: move |e| {
+                                e.prevent_default();
+                                if email().contains("@") {
+                                    is_loading.set(true);
+                                    spawn(async move {
+                                        is_loading.set(false);
+                                        auth_view.set(AuthView::VerifyOtp);
+                                    });
+                                }
+                            },
+                            input {
+                                r#type: "email",
+                                placeholder: "EMAIL ADDRESS",
+                                value: "{email}",
+                                class: "w-full bg-transparent border-b-2 border-[var(--md-sys-color-outline-variant)] px-2 py-3 text-center text-[var(--text-main)] focus:outline-none focus:border-[var(--md-sys-color-primary)] font-bold tracking-widest mb-8 transition-colors",
+                                oninput: move |e| {
+                                    email.set(e.value().to_string());
+                                }
+                            }
+                            button {
+                                r#type: "submit",
+                                disabled: !email().contains("@"),
+                                class: if !email().contains("@") {
+                                    "w-full bg-[var(--md-sys-color-outline-variant)] text-[var(--text-muted)] font-bold uppercase tracking-widest text-sm py-4 rounded-full transition-all duration-300 mb-4"
+                                } else {
+                                    "w-full bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] font-bold uppercase tracking-widest text-sm py-4 rounded-full transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer hover:scale-[1.02] active:scale-95 mb-4"
+                                },
+                                "Continue with OTP"
+                            }
+                            
+                            button {
+                                r#type: "button",
+                                onclick: move |_| {
+                                    is_loading.set(true);
+                                    spawn(async move {
+                                        is_loading.set(false);
+                                        let _ = document::eval("alert('Passkey prompt would appear here!');");
+                                    });
+                                },
+                                disabled: !email().contains("@"),
+                                class: if !email().contains("@") {
+                                    "w-full bg-transparent border-2 border-[var(--md-sys-color-outline-variant)] text-[var(--text-muted)] font-bold uppercase tracking-widest text-sm py-3.5 rounded-full transition-all duration-300 flex items-center justify-center gap-2"
+                                } else {
+                                    "w-full bg-transparent border-2 border-[var(--md-sys-color-primary)] text-[var(--md-sys-color-primary)] font-bold uppercase tracking-widest text-sm py-3.5 rounded-full transition-all duration-300 hover:bg-[var(--md-sys-color-primary)] hover:text-[var(--md-sys-color-on-primary)] shadow-sm hover:shadow-md cursor-pointer hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                                },
+                                svg { class: "w-5 h-5", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", path { d: "M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1.586a2 2 0 0 0-.586-1.414l-8-8a2 2 0 0 0-2.828 0l-2 2a2 2 0 0 0 0 2.828l8 8Z" }, circle { cx: "16.5", cy: "7.5", r: "4.5" }, path { d: "m14 10 1-1" } }
+                                "Use Passkey"
+                            }
+                        }
+                    },
+                    AuthView::VerifyOtp => rsx! {
+                        div { class: "w-16 h-16 bg-[var(--bg-base)] rounded-2xl flex items-center justify-center text-[var(--md-sys-color-primary)] mb-6 shadow-inner",
+                            svg {
+                                class: "w-8 h-8",
+                                fill: "none",
+                                stroke: "currentColor",
+                                "stroke-width": "2.2",
+                                "viewBox": "0 0 24 24",
+                                path {
+                                    "stroke-linecap": "round",
+                                    "stroke-linejoin": "round",
+                                    d: "M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z",
+                                }
+                            }
+                        }
+                        h2 { class: "text-xl font-bold tracking-widest uppercase text-center mb-1 text-[var(--text-main)]", "Verify Identity" }
+                        p { class: "text-[11px] md:text-xs opacity-70 tracking-wider text-center mb-8 text-[var(--text-muted)]",
+                            "Enter the 6-digit code sent to {email}"
+                        }
+
+                        form {
+                            class: "w-full flex flex-col items-center",
+                            onsubmit: move |e| {
+                                e.prevent_default();
+                                if otp().len() == 6 {
+                                    is_loading.set(true);
+                                    spawn(async move {
+                                        is_loading.set(false);
+                                        nav.replace(Route::Home {});
+                                    });
+                                }
+                            },
+                            input {
+                                r#type: "text",
+                                inputmode: "numeric",
+                                pattern: "[0-9]*",
+                                maxlength: "6",
+                                placeholder: "......",
+                                value: "{otp}",
+                                class: "w-full bg-transparent border-b-2 border-[var(--md-sys-color-outline-variant)] px-2 py-3 text-center text-3xl tracking-[1em] text-[var(--text-main)] focus:outline-none focus:border-[var(--md-sys-color-primary)] font-bold mb-8 transition-colors ml-[0.5em]",
+                                oninput: move |e| {
+                                    let clean: String = e.value().chars().filter(|c| c.is_digit(10)).take(6).collect();
+                                    otp.set(clean);
+                                }
+                            }
+                            button {
+                                r#type: "submit",
+                                disabled: otp().len() < 6,
+                                class: if otp().len() < 6 {
+                                    "w-full bg-[var(--md-sys-color-outline-variant)] text-[var(--text-muted)] font-bold uppercase tracking-widest text-sm py-4 rounded-full transition-all duration-300"
+                                } else {
+                                    "w-full bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] font-bold uppercase tracking-widest text-sm py-4 rounded-full transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer hover:scale-[1.02] active:scale-95"
+                                },
+                                "Verify & Login"
+                            }
+                            
+
+                        }
                     }
                 }
             }

@@ -93,14 +93,14 @@ fn Navbar() -> Element {
                     Link { to: Route::About {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "About" }
                 }
                 div { class: "flex items-center space-x-1 sm:space-x-2 shrink-0",
-                    Link { to: Route::Auth {}, class: "p-2 flex items-center justify-center rounded-full text-[var(--md-sys-color-primary)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
+                    Link { to: Route::Auth {}, class: "p-2 flex items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
                         svg { class: "w-6 h-6", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", xmlns: "http://www.w3.org/2000/svg",
                             circle { cx: "12", cy: "8", r: "5" }
                             path { d: "M20 21a8 8 0 0 0-16 0" }
                         }
                     }
                     button {
-                        class: "lg:hidden p-2 flex items-center justify-center rounded-full text-[var(--md-sys-color-primary)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
+                        class: "lg:hidden p-2 flex items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
                         onclick: move |_| is_mobile_menu_open.set(true),
                         svg { class: "w-6 h-6", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", xmlns: "http://www.w3.org/2000/svg",
                             path { d: "M3 12h18M3 6h18M3 18h18" }
@@ -166,7 +166,7 @@ fn Home() -> Element {
 #[component]
 fn HeroSection() -> Element {
     rsx! {
-        div { class: "relative w-full px-0 pt-32 pb-24 overflow-hidden bg-[var(--md-sys-color-surface-container)] rounded-b-[2.5rem] md:rounded-b-[4rem] shadow-sm mb-12",
+        div { class: "relative w-full px-0 pt-12 pb-24 overflow-hidden bg-[var(--md-sys-color-surface-container)] rounded-b-[2.5rem] md:rounded-b-[4rem] shadow-sm mb-12",
             div { class: "absolute top-10 right-0 w-[50vw] h-[50vw] max-w-[800px] max-h-[800px] bg-[var(--accent)] opacity-20 blur-[150px] rounded-full pointer-events-none translate-x-1/3" }
             div { class: "absolute bottom-0 left-0 w-[30vw] h-[30vw] max-w-[500px] max-h-[500px] bg-[var(--text-main)] opacity-10 blur-[100px] rounded-full pointer-events-none -translate-x-1/2" }
 
@@ -175,7 +175,7 @@ fn HeroSection() -> Element {
                     div { class: "inline-block mb-6 px-4 py-2 rounded-full  glass-panel animate-fade-in-up delay-1 text-[var(--accent)] text-sm font-bold tracking-widest uppercase shadow-sm",
                         "✨ Welcome to C3"
                     }
-                    h1 { class: "text-[11vw] sm:text-[10vw] md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9] w-full break-words",
+                    h1 { class: "text-[9vw] sm:text-[8vw] md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9] w-full break-words",
                         "CODE." br {} "CREATE." br {} "COLLABORATE."
                     }
                     p { class: "text-xl md:text-2xl font-medium text-[var(--text-muted)] max-w-2xl mb-12 leading-relaxed",

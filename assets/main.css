@@ -1,0 +1,115 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+/* Hide scrollbar */
+::-webkit-scrollbar { display: none; }
+html, body { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Material 3 Pink/Red Theme (Light) */
+:root {
+    --md-sys-color-primary: #8c6b5d;
+    --md-sys-color-on-primary: #eae3d9;
+    --md-sys-color-primary-container: #d1c5b4;
+    --md-sys-color-on-primary-container: #1a1614;
+    
+    --md-sys-color-secondary-container: #d1c5b4;
+    --md-sys-color-on-secondary-container: #1a1614;
+
+    --md-sys-color-surface: #eae3d9;
+    --md-sys-color-on-surface: #1a1614;
+    --md-sys-color-surface-container-low: #f0e9df;
+    --md-sys-color-surface-container: #f5f0eb;
+    --md-sys-color-surface-container-high: #ffffff;
+    
+    --md-sys-color-outline-variant: #d1c5b4;
+    
+    /* MD3 Elevations */
+    --md-sys-elevation-1: 0px 1px 2px 0px rgba(0,0,0,0.1), 0px 1px 3px 1px rgba(0,0,0,0.05);
+    --md-sys-elevation-2: 0px 1px 2px 0px rgba(0,0,0,0.1), 0px 2px 6px 2px rgba(0,0,0,0.05);
+    
+    /* Fallbacks for Dioxus Tailwind Components */
+    --bg-base: var(--md-sys-color-surface);
+    --bg-surface: var(--md-sys-color-surface-container);
+    --text-main: var(--md-sys-color-on-surface);
+    --text-muted: #4a3b32;
+    --accent: var(--md-sys-color-primary);
+    --accent-hover: #6a5448;
+}
+
+/* Material 3 Pink/Red Theme (Dark) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --md-sys-color-primary: #bcae9c;
+        --md-sys-color-on-primary: #1a1614;
+        --md-sys-color-primary-container: #3a322e;
+        --md-sys-color-on-primary-container: #eae3d9;
+        
+        --md-sys-color-secondary-container: #3a322e;
+        --md-sys-color-on-secondary-container: #eae3d9;
+
+        --md-sys-color-surface: #1a1614;
+        --md-sys-color-on-surface: #eae3d9;
+        --md-sys-color-surface-container-low: #241e1b;
+        --md-sys-color-surface-container: #2a2421;
+        --md-sys-color-surface-container-high: #3a322e;
+        
+        --md-sys-color-outline-variant: #4a3b32;
+        
+        --md-sys-elevation-1: 0px 1px 3px 1px rgba(0,0,0,0.3), 0px 1px 2px 0px rgba(0,0,0,0.5);
+        
+        /* Fallbacks */
+        --bg-base: var(--md-sys-color-surface);
+        --bg-surface: var(--md-sys-color-surface-container);
+        --text-main: var(--md-sys-color-on-surface);
+        --text-muted: #bcae9c;
+        --accent: var(--md-sys-color-primary);
+        --accent-hover: #eae3d9;
+    }
+}
+
+body, html {
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+    letter-spacing: 0.1px;
+}
+
+/* Material 3 Surface & Card mapping (removes glass, uses M3 solid tonal colors) */
+.glass-panel {
+    background-color: var(--md-sys-color-surface-container);
+    border: none;
+    border-radius: 16px;
+    box-shadow: none;
+    transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.glass-panel:hover {
+    background-color: var(--md-sys-color-surface-container-high);
+    box-shadow: var(--md-sys-elevation-1);
+    transform: translateY(-2px);
+}
+
+
+
+/* Fluid UI Animations */
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s cubic-bezier(0.2, 0, 0, 1) forwards;
+    opacity: 0;
+    transform: translateY(10px);
+}
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+::selection {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+}

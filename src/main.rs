@@ -175,7 +175,7 @@ fn HeroSection() -> Element {
                     div { class: "inline-block mb-6 px-4 py-2 rounded-full  glass-panel animate-fade-in-up delay-1 text-[var(--accent)] text-sm font-bold tracking-widest uppercase shadow-sm",
                         "✨ Welcome to C3"
                     }
-                    h1 { class: "text-[9vw] sm:text-[8vw] md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9] w-full break-words",
+                    h1 { class: "text-[8vw] sm:text-[7.5vw] md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9] w-full whitespace-nowrap",
                         "CODE." br {} "CREATE." br {} "COLLABORATE."
                     }
                     p { class: "text-xl md:text-2xl font-medium text-[var(--text-muted)] max-w-2xl mb-12 leading-relaxed",
@@ -193,7 +193,7 @@ fn HeroSection() -> Element {
                 div { class: "md:w-1/3 flex justify-center mt-12 md:mt-0",
                     div { class: "relative w-full aspect-square max-w-[350px]",
                         div { class: "absolute inset-0 bg-gradient-to-br from-[var(--bg-glass)] to-[var(--bg-base)] backdrop-blur-3xl rounded-[3rem]  shadow-2xl flex items-center justify-center overflow-hidden",
-                            div { class: "text-[15rem] font-black opacity-10 text-[var(--accent)] -translate-y-4",
+                            div { class: "text-[15rem] font-black opacity-60 text-[var(--text-main)] -translate-y-4 drop-shadow-xl",
                                 span { "{{" }
                                 span { "}}" }
                             }
@@ -350,7 +350,7 @@ fn MentorCard(name: String, department: String, image: Asset, delay: String) -> 
 #[component]
 fn LogicLeagueSection() -> Element {
     rsx! {
-        div { class: "relative max-w-7xl mx-auto px-4 py-32 border-t border-[var(--border-glass)]",
+        div { class: "relative max-w-7xl mx-auto px-4 py-32",
             div { class: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[600px] bg-[var(--text-main)] opacity-5 blur-[150px] rounded-full pointer-events-none" }
             div { class: "text-center mb-24 relative z-10",
                 div { class: "inline-block mb-4 px-4 py-1.5 rounded-full  glass-panel animate-fade-in-up delay-1 text-[var(--accent)] text-xs font-bold tracking-widest uppercase shadow-sm",
@@ -626,7 +626,7 @@ fn About() -> Element {
 #[component]
 fn Footer() -> Element {
     rsx! {
-        footer { class: "bg-[var(--bg-surface)] border-t border-[var(--border-color)] text-[var(--text-muted)] py-16 transition-colors duration-300",
+        footer { class: "bg-[var(--bg-surface)] text-[var(--text-muted)] py-16 transition-colors duration-300",
             div { class: "max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12",
                 div { class: "col-span-1 md:col-span-2",
                     div { class: "text-2xl font-bold text-[var(--text-main)] mb-6 tracking-tight", "Creative Coding Community" }
@@ -758,8 +758,8 @@ fn Auth() -> Element {
                                 } else {
                                     "w-full bg-transparent border-2 border-[var(--md-sys-color-primary)] text-[var(--md-sys-color-primary)] font-bold uppercase tracking-widest text-sm py-3.5 rounded-full transition-all duration-300 hover:bg-[var(--md-sys-color-primary)] hover:text-[var(--md-sys-color-on-primary)] shadow-sm hover:shadow-md cursor-pointer hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                                 },
-                                svg { class: "w-5 h-5", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", path { d: "M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1.586a2 2 0 0 0-.586-1.414l-8-8a2 2 0 0 0-2.828 0l-2 2a2 2 0 0 0 0 2.828l8 8Z" }, circle { cx: "16.5", cy: "7.5", r: "4.5" }, path { d: "m14 10 1-1" } }
-                                "Use Passkey"
+                                svg { class: "w-5 h-5", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", path { d: "M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" } }
+                                "Login with Passkey"
                             }
                         }
                     },

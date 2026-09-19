@@ -116,7 +116,7 @@ fn HeroSection() -> Element {
                         "✨ Welcome to C3"
                     }
                     h1 { class: "text-6xl md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9]",
-                        "CREATE." br {} "CODE." br {} "COLLABORATE."
+                        "CODE." br {} "CREATE." br {} "COLLABORATE."
                     }
                     p { class: "text-xl md:text-2xl font-medium text-[var(--text-muted)] max-w-2xl mb-12 leading-relaxed",
                         "Where creativity meets code at GEC Samastipur. Join our vibrant team of coders, creators, and innovators."

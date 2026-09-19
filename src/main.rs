@@ -16,10 +16,6 @@ enum Route {
     About {},
 }
 
-const FAVICON_SVG: Asset = asset!("/assets/favicon.svg");
-const ICON_192: Asset = asset!("/assets/icon-192.png");
-const ICON_512: Asset = asset!("/assets/icon-512.png");
-const MANIFEST: Asset = asset!("/assets/manifest.json");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
 const PWA_JS: Asset = asset!("/assets/pwa.js");
 
@@ -29,14 +25,39 @@ fn main() {
 
 #[component]
 fn App() -> Element {
+    use_effect(move || {
+        spawn(async move {
+            let _ = document::eval(
+                r#"
+                // ============================================================================
+                // 1. SERVICE WORKER
+                // ============================================================================
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(reg => console.log('SW registered with scope:', reg.scope))
+                    .catch(err => console.error('SW registration failed:', err));
+                }
+
+                // ============================================================================
+                // 2. PRELOADER & REVEALS NEW UI
+                // ============================================================================
+                setTimeout(() => {
+                    document.body.classList.add('app-loaded');
+                    setTimeout(() => {
+                        const loader = document.getElementById('preloader');
+                        if(loader) loader.remove();
+                    }, 500);
+                }, 500);
+                "#
+            ).await;
+        });
+    });
+
     rsx! {
-        document::Link { rel: "icon", r#type: "image/svg+xml", href: FAVICON_SVG }
-        document::Link { rel: "apple-touch-icon", href: ICON_192 }
-        document::Link { rel: "manifest", href: MANIFEST }
+        document::Title { "C3 Community" }
         document::Link { rel: "stylesheet", href: MAIN_CSS }
         document::Script { src: "https://unpkg.com/@tailwindcss/browser@4" }
         document::Script { src: PWA_JS }
-
         Router::<Route> {}
     }
 }
@@ -95,7 +116,7 @@ fn HeroSection() -> Element {
                         "✨ Welcome to C3"
                     }
                     h1 { class: "text-6xl md:text-8xl lg:text-9xl font-extrabold mb-8 tracking-tighter text-[var(--text-main)] leading-[0.9]",
-                        "CREATE." br {} "CODE." br {} "CONQUER."
+                        "CREATE." br {} "CODE." br {} "COLLABORATE."
                     }
                     p { class: "text-xl md:text-2xl font-medium text-[var(--text-muted)] max-w-2xl mb-12 leading-relaxed",
                         "Where creativity meets code at GEC Samastipur. Join our vibrant team of coders, creators, and innovators."
@@ -542,7 +563,6 @@ fn About() -> Element {
 // ---------------------------------------------------------
 // Shared Footer
 // ---------------------------------------------------------
-
 #[component]
 fn Footer() -> Element {
     rsx! {

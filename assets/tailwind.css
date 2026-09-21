@@ -674,13 +674,6 @@
       margin-inline-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-x-reverse)));
     }
   }
-  .space-x-2 {
-    :where(& > :not(:last-child)) {
-      --tw-space-x-reverse: 0;
-      margin-inline-start: calc(calc(var(--spacing) * 2) * var(--tw-space-x-reverse));
-      margin-inline-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-x-reverse)));
-    }
-  }
   .space-x-5 {
     :where(& > :not(:last-child)) {
       --tw-space-x-reverse: 0;
@@ -694,11 +687,6 @@
       margin-inline-start: calc(calc(var(--spacing) * 6) * var(--tw-space-x-reverse));
       margin-inline-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-x-reverse)));
     }
-  }
-  .truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   .overflow-hidden {
     overflow: hidden;
@@ -778,9 +766,6 @@
   }
   .border-\[var\(--border-color\)\] {
     border-color: var(--border-color);
-  }
-  .border-\[var\(--border-glass\)\] {
-    border-color: var(--border-glass);
   }
   .border-\[var\(--md-sys-color-outline-variant\)\] {
     border-color: var(--md-sys-color-outline-variant);
@@ -868,6 +853,9 @@
   .to-\[var\(--bg-glass\)\] {
     --tw-gradient-to: var(--bg-glass);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+  .object-contain {
+    object-fit: contain;
   }
   .object-cover {
     object-fit: cover;
@@ -1002,9 +990,6 @@
   .text-\[8vw\] {
     font-size: 8vw;
   }
-  .text-\[9vw\] {
-    font-size: 9vw;
-  }
   .text-\[11px\] {
     font-size: 11px;
   }
@@ -1066,9 +1051,6 @@
   .tracking-widest {
     --tw-tracking: var(--tracking-widest);
     letter-spacing: var(--tracking-widest);
-  }
-  .break-words {
-    overflow-wrap: break-word;
   }
   .whitespace-nowrap {
     white-space: nowrap;
@@ -1475,11 +1457,6 @@
   .sm\:text-\[7\.5vw\] {
     @media (width >= 40rem) {
       font-size: 7.5vw;
-    }
-  }
-  .sm\:text-\[8vw\] {
-    @media (width >= 40rem) {
-      font-size: 8vw;
     }
   }
   .md\:order-1 {

@@ -50,8 +50,9 @@ fn App() -> Element {
                         if(loader) loader.remove();
                     }, 500);
                 }, 500);
-                "#
-            ).await;
+                "#,
+            )
+            .await;
         });
     });
 
@@ -79,8 +80,13 @@ fn Navbar() -> Element {
     rsx! {
         nav { class: "bg-[var(--bg-base)] text-[var(--text-main)] p-4 sticky top-0 z-50 transition-colors duration-300 w-full overflow-x-hidden",
             div { class: "max-w-7xl mx-auto flex justify-between items-center",
-                div { class: "flex items-center space-x-2 shrink-0 min-w-0",
-                    Link { to: Route::Home {}, class: "text-xl md:text-2xl font-bold tracking-tight text-[var(--text-main)] cursor-pointer rounded-xl px-2 py-1 truncate", 
+                div { class: "flex items-center gap-2 shrink-0 min-w-0",
+                    Link { to: Route::Home {}, class: "flex items-center gap-2 text-xl md:text-2xl font-bold tracking-tight text-[var(--text-main)] cursor-pointer rounded-xl px-2 py-1",
+                        img {
+                            src: asset!("/assets/transparent_logo.png"),
+                            alt: "C3 Logo",
+                            class: "w-8 h-8 shrink-0 object-contain"
+                        }
                         span { class: "hidden sm:inline", "Creative Coding Community" }
                         span { class: "sm:hidden", "C3 Community" }
                     }
@@ -109,7 +115,7 @@ fn Navbar() -> Element {
                 }
             }
         }
-        
+
         if is_mobile_menu_open() {
             // Backdrop
             div {
@@ -119,7 +125,7 @@ fn Navbar() -> Element {
             // Drawer
             div {
                 class: "fixed inset-y-0 left-0 z-[101] w-64 sm:w-80 bg-[var(--md-sys-color-surface-container)] shadow-2xl flex flex-col animate-slide-in-left border-r border-[var(--md-sys-color-outline-variant)]",
-                
+
                 // Drawer Header
                 div { class: "p-6 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between",
                     div { class: "font-bold text-xl text-[var(--text-main)] tracking-tight", "C3 Community" }
@@ -131,7 +137,7 @@ fn Navbar() -> Element {
                         }
                     }
                 }
-                
+
                 // Drawer Links
                 div { class: "flex flex-col py-4 px-3 space-y-1 text-[var(--text-main)] font-medium",
                     Link { to: Route::Home {}, onclick: move |_| is_mobile_menu_open.set(false), class: "px-4 py-3 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors", "Home" }
@@ -142,7 +148,7 @@ fn Navbar() -> Element {
                 }
             }
         }
-        
+
         Outlet::<Route> {}
         Footer {}
     }
@@ -666,7 +672,6 @@ fn FooterColumn(title: String, links: Vec<String>) -> Element {
     }
 }
 
-
 #[derive(Clone, Copy, PartialEq)]
 enum AuthView {
     EmailInput,
@@ -681,10 +686,37 @@ fn Auth() -> Element {
     let mut otp = use_signal(String::new);
     let mut is_loading = use_signal(|| false);
 
+    // Desktop only: pressing Enter anywhere focuses the active input field
+    use_effect(move || {
+        spawn(async move {
+            let _ = document::eval(
+                r#"
+                (function() {
+                    // Remove old listener if any (re-render safety)
+                    if (window.__authFocusHandler) {
+                        document.removeEventListener('keydown', window.__authFocusHandler);
+                    }
+                    // Desktop only: mouse pointer device
+                    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+                    window.__authFocusHandler = function(e) {
+                        if (e.key !== 'Enter') return;
+                        var input = document.getElementById('auth-input');
+                        if (input && document.activeElement !== input) {
+                            input.focus();
+                        }
+                    };
+                    document.addEventListener('keydown', window.__authFocusHandler);
+                })();
+            "#,
+            )
+            .await;
+        });
+    });
+
     rsx! {
         div { class: "min-h-[80vh] flex flex-col items-center justify-center px-4 animate-page-transition",
             div { class: "w-full max-w-md bg-[var(--md-sys-color-surface-container)] backdrop-blur-md rounded-[2rem] p-8 shadow-sm flex flex-col items-center relative overflow-hidden border border-[var(--md-sys-color-outline-variant)]",
-                
+
                 if *is_loading.read() {
                     div { class: "absolute inset-0 bg-[var(--md-sys-color-surface-container)]/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center",
                         div { class: "w-10 h-10 border-4 border-[var(--md-sys-color-primary)] border-t-transparent rounded-full animate-spin mb-4" }
@@ -742,7 +774,7 @@ fn Auth() -> Element {
                                 },
                                 "Continue with OTP"
                             }
-                            
+
                             button {
                                 r#type: "button",
                                 onclick: move |_| {
@@ -796,6 +828,7 @@ fn Auth() -> Element {
                                 }
                             },
                             input {
+                                id: "auth-input",
                                 r#type: "text",
                                 inputmode: "numeric",
                                 pattern: "[0-9]*",
@@ -804,7 +837,7 @@ fn Auth() -> Element {
                                 value: "{otp}",
                                 class: "w-full bg-transparent border-b-2 border-[var(--md-sys-color-outline-variant)] px-2 py-3 text-center text-3xl tracking-[1em] text-[var(--text-main)] focus:outline-none focus:border-[var(--md-sys-color-primary)] font-bold mb-8 transition-colors ml-[0.5em]",
                                 oninput: move |e| {
-                                    let clean: String = e.value().chars().filter(|c| c.is_digit(10)).take(6).collect();
+                                    let clean: String = e.value().chars().filter(|c| c.is_ascii_digit()).take(6).collect();
                                     otp.set(clean);
                                 }
                             }
@@ -818,7 +851,7 @@ fn Auth() -> Element {
                                 },
                                 "Verify & Login"
                             }
-                            
+
 
                         }
                     }

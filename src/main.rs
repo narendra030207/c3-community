@@ -1,4 +1,6 @@
+mod logo;
 use dioxus::prelude::*;
+use logo::C3Logo;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
@@ -82,11 +84,7 @@ fn Navbar() -> Element {
             div { class: "max-w-7xl mx-auto flex justify-between items-center",
                 div { class: "flex items-center gap-2 shrink-0 min-w-0",
                     Link { to: Route::Home {}, class: "flex items-center gap-2 text-xl md:text-2xl font-bold tracking-tight text-[var(--text-main)] cursor-pointer rounded-xl px-2 py-1",
-                        img {
-                            src: asset!("/assets/transparent_logo.png"),
-                            alt: "C3 Logo",
-                            class: "w-8 h-8 shrink-0 object-contain"
-                        }
+                        C3Logo { class: "w-8 h-8 shrink-0 object-contain".to_string() }
                         span { class: "hidden sm:inline", "Creative Coding Community" }
                         span { class: "sm:hidden", "C3 Community" }
                     }
@@ -98,15 +96,15 @@ fn Navbar() -> Element {
                     Link { to: Route::Resources {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "Resources" }
                     Link { to: Route::About {}, class: "px-4 py-2 rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-primary)] cursor-pointer transition-colors font-medium", "About" }
                 }
-                div { class: "flex items-center space-x-1 sm:space-x-2 shrink-0",
-                    Link { to: Route::Auth {}, class: "p-2 flex items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
+                div { class: "flex items-center gap-2 sm:gap-4 shrink-0",
+                    Link { to: Route::Auth {}, class: "p-2.5 flex items-center justify-center rounded-full text-[var(--text-main)] opacity-70 hover:opacity-100 hover:bg-[var(--md-sys-color-surface-container-high)] hover:shadow-sm active:scale-95 cursor-pointer transition-all duration-300",
                         svg { class: "w-6 h-6", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", xmlns: "http://www.w3.org/2000/svg",
                             circle { cx: "12", cy: "8", r: "5" }
                             path { d: "M20 21a8 8 0 0 0-16 0" }
                         }
                     }
                     button {
-                        class: "lg:hidden p-2 flex items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer transition-colors",
+                        class: "lg:hidden p-2.5 flex items-center justify-center rounded-full text-[var(--text-main)] opacity-70 hover:opacity-100 hover:bg-[var(--md-sys-color-surface-container-high)] hover:shadow-sm active:scale-95 cursor-pointer transition-all duration-300",
                         onclick: move |_| is_mobile_menu_open.set(true),
                         svg { class: "w-6 h-6", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "viewBox": "0 0 24 24", xmlns: "http://www.w3.org/2000/svg",
                             path { d: "M3 12h18M3 6h18M3 18h18" }
@@ -128,7 +126,10 @@ fn Navbar() -> Element {
 
                 // Drawer Header
                 div { class: "p-6 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between",
-                    div { class: "font-bold text-xl text-[var(--text-main)] tracking-tight", "C3 Community" }
+                    div { class: "flex items-center gap-2",
+                        C3Logo { class: "w-8 h-8 shrink-0 object-contain".to_string() }
+                        div { class: "font-bold text-xl text-[var(--text-main)] tracking-tight", "C3 Community" }
+                    }
                     button {
                         class: "p-2 text-[var(--text-muted)] cursor-pointer rounded-full hover:bg-[var(--md-sys-color-surface-container-high)] transition-colors",
                         onclick: move |_| is_mobile_menu_open.set(false),
@@ -702,6 +703,7 @@ fn Auth() -> Element {
                         if (e.key !== 'Enter') return;
                         var input = document.getElementById('auth-input');
                         if (input && document.activeElement !== input) {
+                            e.preventDefault();
                             input.focus();
                         }
                     };
@@ -756,6 +758,7 @@ fn Auth() -> Element {
                                 }
                             },
                             input {
+                                id: "auth-input",
                                 r#type: "email",
                                 placeholder: "EMAIL ADDRESS",
                                 value: "{email}",
